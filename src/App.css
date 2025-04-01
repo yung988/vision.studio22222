@@ -1,0 +1,48 @@
+.container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: #141622;
+  overflow: hidden;
+}
+
+.nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1;
+}
+
+.button {
+  padding: 12px 20px;
+  background: white;
+  color: black;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+}
+
+.button.gray {
+  background: #333;
+  color: white;
+}
+
+.label {
+  font-size: 3em;
+  font-weight: 800;
+  line-height: 1;
+  margin: 0;
+  color: white;
+}
+
+.caption {
+  color: white;
+  font-size: 0.9em;
+}
+
