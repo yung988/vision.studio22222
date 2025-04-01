@@ -432,13 +432,47 @@ function Connector({ position, children, color, scale, accent = false, modelType
     if (api.current) {
       const currentPosition = api.current.translation()
       
-      // Menší přitažlivost ke středu
-      const attractionMultiplier = 0.05
+      // Získání pozice
+      const position = new THREE.Vector3(
+        currentPosition.x,
+        currentPosition.y,
+        currentPosition.z
+      )
       
-      // Pomalejší pohyb
+      // Výpočet vzdálenosti od středu
+      const distanceFromCenter = position.length()
+      
+      // Maximální povolená vzdálenost
+      const maxDistance = 8
+      
+      // Pokud je objekt příliš daleko, vytvoříme silnější přitažlivou sílu
+      let attractionMultiplier = 0.05 // Základní přitažlivost
+      
+      if (distanceFromCenter > maxDistance) {
+        // Exponenciálně zvyšujeme sílu přitažlivosti se vzdáleností
+        const distanceFactor = (distanceFromCenter - maxDistance) / maxDistance
+        attractionMultiplier = 0.05 + distanceFactor * 0.3
+        
+        // Pro extrémní případy aplikujeme násilné omezení pozice
+        if (distanceFromCenter > maxDistance * 1.5) {
+          // Normalizujeme vektor a omezíme jeho délku na maxDistance
+          position.normalize().multiplyScalar(maxDistance)
+          
+          // Nastavíme novou pozici
+          api.current.setTranslation(
+            { x: position.x, y: position.y, z: position.z },
+            true
+          )
+          
+          // Zastavíme pohyb objektu
+          api.current.setLinvel({ x: 0, y: 0, z: 0 }, true)
+        }
+      }
+      
+      // Aplikujeme přitažlivou sílu ke středu
       api.current.applyImpulse(
         new THREE.Vector3()
-          .copy(currentPosition)
+          .copy(position)
           .negate()
           .multiplyScalar(attractionMultiplier),
         true
