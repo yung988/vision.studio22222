@@ -18,13 +18,6 @@ const nextConfig = {
   },
   transpilePackages: ['three'],
   webpack: (config) => {
-    config.externals.push({
-      three: 'THREE',
-      'three-stdlib': 'threeStdlib',
-      'three-mesh-bvh': 'threeMeshBVH',
-      'three-spritetext': 'threeSpriteText'
-    });
-    
     // Zvýšení limitů pro velké soubory
     config.performance = {
       ...config.performance,
@@ -44,7 +37,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; worker-src 'self' blob:;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; object-src 'none'; worker-src 'self' blob:;"
           }
         ]
       }
