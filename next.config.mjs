@@ -22,6 +22,18 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  webpack: (config) => {
+    config.performance = {
+      ...config.performance,
+      maxAssetSize: 8 * 1024 * 1024, // 8 MB
+      maxEntrypointSize: 8 * 1024 * 1024, // 8 MB
+    };
+    return config;
+  },
+  onDemandEntries: {
+    maxInactiveAge: 60 * 60 * 1000, // 1 hodina
+    pagesBufferLength: 5,
+  },
 }
 
 mergeConfig(nextConfig, userConfig)

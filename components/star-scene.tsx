@@ -202,9 +202,9 @@ const MATERIALS = {
 const MODELS = {
   STAR: "/models/star.glb",
   GLASS_STAR: "/models/glass_star.glb",
-  CRUCIFIX: "/models/jesus.glb",
-  ATREYU: "/models/atreyu.glb",
-  DAVID: "/models/david.glb",
+  CRUCIFIX: "/models/star.glb",
+  ATREYU: "/models/star.glb",
+  DAVID: "/models/star.glb",
   STUDIO: "/models/star.glb"
 } as const
 
@@ -233,9 +233,6 @@ type ConnectorProps = {
 // Preload modelů
 useGLTF.preload("/models/star.glb")
 useGLTF.preload("/models/glass_star.glb")
-useGLTF.preload("/models/jesus.glb")
-useGLTF.preload("/models/atreyu.glb")
-useGLTF.preload("/models/david.glb")
 
 // Model komponenta
 function Model({ color, scale, children, modelType, materialType }: ModelProps) {
@@ -425,52 +422,62 @@ function Scene() {
 
     // Skleněná hvězda - pouze jedna
     connectorsRef.current.push({
-      id: "glass-star-1",
-      color: MATERIALS.GLASS.colors[0],
+      id: "glass-star-2",
+      color: MATERIALS.GLASS.colors[1],
       accent: false,
       scale: 0.9,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS" as MaterialType
     })
 
-    // Kříž s chromovým materiálem - pouze jeden
+    // Hvězda s chromovým materiálem
     connectorsRef.current.push({
-      id: "crucifix-1",
+      id: "chrome-star-1",
       color: MATERIALS.CHROME.colors[0],
       accent: false,
       scale: 0.8,
-      modelType: "CRUCIFIX" as ModelType,
+      modelType: "STAR" as ModelType,
       materialType: "CHROME" as MaterialType
     })
 
-    // Atreyu s hologramovým materiálem
+    // Hvězda s hologramovým materiálem
     connectorsRef.current.push({
-      id: "atreyu-1",
+      id: "hologram-star-1",
       color: MATERIALS.HOLOGRAM.colors[0],
       accent: true,
       scale: 0.8,
-      modelType: "ATREYU" as ModelType,
+      modelType: "STAR" as ModelType,
       materialType: "HOLOGRAM" as MaterialType
     })
 
-    // David s mramorovým materiálem
+    // Hvězda s mramorovým materiálem
     connectorsRef.current.push({
-      id: 'david',
+      id: 'marble-star-1',
       color: MATERIALS.MARBLE.colors[0],
       accent: false,
       scale: 1,
-      modelType: "DAVID" as ModelType,
+      modelType: "STAR" as ModelType,
       materialType: "MARBLE" as MaterialType
     })
 
-    // Studio Vision - pouze jeden, je velký
+    // Hvězda s STUDIO materiálem
     connectorsRef.current.push({
-      id: 'studio',
+      id: 'studio-star-1',
       color: MATERIALS.STUDIO.colors[0],
       accent: true,
       scale: 1.5,
-      modelType: "STUDIO" as ModelType,
+      modelType: "STAR" as ModelType,
       materialType: "STUDIO" as MaterialType
+    })
+    
+    // Další hvězda s jiným materiálem
+    connectorsRef.current.push({
+      id: 'glass-star-3',
+      color: MATERIALS.GLASS.colors[2],
+      accent: false,
+      scale: 1.2,
+      modelType: "GLASS_STAR" as ModelType,
+      materialType: "GLASS" as MaterialType
     })
   }
 
