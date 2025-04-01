@@ -161,7 +161,7 @@ function LoadingScreen() {
         color: 'white',
         fontFamily: 'Arial, sans-serif'
       }}>
-        <div style={{ marginBottom: '10px' }}>Načítání modelů...</div>
+        <div style={{ marginBottom: '10px' }}>Kurva, načítám modely...</div>
         <div style={{ 
           width: '200px', 
           height: '6px', 
@@ -890,5 +890,23 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
     }
 
     return this.props.children
+  }
+}
+
+// Přidáváme deklarace pro JSX elementy z Three.js
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'mesh': any,
+      'planeGeometry': any,
+      'rayMarchingMaterial': any,
+      'meshStandardMaterial': any,
+      'group': any,
+      'primitive': any,
+      'pointLight': any,
+      'color': any,
+      'ambientLight': any,
+      'spotLight': any
+    }
   }
 }
