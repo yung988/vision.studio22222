@@ -1,7 +1,7 @@
 "use client"
 
 import * as THREE from "three"
-import { useRef, useMemo, Suspense, useState, useEffect } from "react"
+import React, { useRef, useMemo, Suspense, useState, useEffect } from "react"
 import { Canvas, useFrame, extend, useLoader } from "@react-three/fiber"
 import { Physics, RigidBody, BallCollider, CuboidCollider } from "@react-three/rapier"
 import type { RapierRigidBody } from '@react-three/rapier'
@@ -284,15 +284,26 @@ useGLTF.preload("/models/jesus.glb")
 function Model({ color, scale, children, modelType, materialType }: ModelProps) {
   const ref = useRef<THREE.Mesh>(null)
   const [model, setModel] = useState<THREE.Object3D | null>(null)
+  const [error, setError] = useState<boolean>(false)
   
   useEffect(() => {
     try {
+      // Zkusíme načíst požadovaný model
       const { scene } = useGLTF(MODELS[modelType])
       setModel(scene.clone())
+      setError(false)
     } catch (error) {
       console.warn(`Model ${modelType} se nepodařilo načíst, používám záložní`, error)
-      const { scene } = useGLTF(MODELS["STAR"])
-      setModel(scene.clone())
+      setError(true)
+      
+      // Zkusíme načíst záložní STAR model
+      try {
+        const { scene } = useGLTF(MODELS["STAR"])
+        setModel(scene.clone())
+      } catch (fallbackError) {
+        console.error("Ani záložní model se nepodařilo načíst", fallbackError)
+        // Necháme model null, komponenta nebude nic renderovat
+      }
     }
   }, [modelType])
   
@@ -795,6 +806,35 @@ function Scene() {
 
 // Export hlavní komponenty
 export default function StarScene() {
+  // Přidáme stav pro WebGL podporu
+  const [webGLSupported, setWebGLSupported] = useState<boolean | null>(null)
+  
+  // Kontrola WebGL podpory
+  useEffect(() => {
+    // Kontrolujeme pouze v prohlížeči
+    if (typeof window !== 'undefined') {
+      try {
+        const canvas = document.createElement('canvas')
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+        setWebGLSupported(!!gl)
+      } catch (e) {
+        console.error('WebGL není podporován', e)
+        setWebGLSupported(false)
+      }
+    }
+  }, [])
+  
+  // Fallback pro případ, že WebGL není podporováno
+  if (webGLSupported === false) {
+    return (
+      <div className="webgl-error">
+        <h2>Váš prohlížeč nepodporuje WebGL</h2>
+        <p>Tato aplikace vyžaduje prohlížeč s podporou WebGL pro zobrazení 3D obsahu.</p>
+        <p>Zkuste prosím jiný prohlížeč, jako je Chrome, Firefox nebo Edge.</p>
+      </div>
+    )
+  }
+  
   return (
     <div style={{ 
       width: "100%", 
@@ -803,7 +843,52 @@ export default function StarScene() {
       borderRadius: "20px",
       overflow: "hidden"
     }}>
-      <Scene />
+      <ErrorBoundary>
+        <Scene />
+      </ErrorBoundary>
     </div>
   )
+}
+
+// Jednoduchá Error Boundary komponenta
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("Chyba v 3D scéně:", error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="webgl-error">
+          <h2>Něco se pokazilo</h2>
+          <p>Nepodařilo se vykreslit 3D scénu.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              marginTop: '20px',
+              padding: '8px 16px',
+              background: '#3050ff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Zkusit znovu
+          </button>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
 }
