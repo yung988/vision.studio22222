@@ -2,10 +2,6 @@
 
 import Link from "next/link"
 import React, { useState, useRef, useEffect } from "react"
-import {
-  motion,
-  AnimatePresence,
-} from "framer-motion"
 import { cn } from "@/utils/cn"
 
 interface PopupMenuProps {
@@ -33,52 +29,10 @@ export function PopupMenu({ isMobile = false }: PopupMenuProps) {
     }
   }, [isOpen])
 
-  const menuVariants = {
-    open: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 24,
-      },
-    },
-    closed: {
-      opacity: 0,
-      y: 20,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 24,
-      },
-    },
-  }
-
-  const menuItemVariants = {
-    open: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 20,
-        delay: i * 0.05,
-      },
-    }),
-    closed: {
-      opacity: 0,
-      y: 10,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 20,
-      },
-    },
-  }
-
   return (
     <div ref={containerRef} className={`relative z-50 ${isMobile ? "" : "ml-4"}`}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "text-sm uppercase tracking-wider flex items-center gap-2 font-medium z-50",
@@ -112,67 +66,63 @@ export function PopupMenu({ isMobile = false }: PopupMenuProps) {
         </div>
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial="closed"
-            animate="open"
-            exit="closed"
-            variants={menuVariants}
-            className={cn(
-              "absolute top-full right-0 mt-2 p-6 bg-white shadow-lg rounded-xl w-60 z-40"
-            )}
-          >
-            <nav className="grid gap-3">
-              <motion.div custom={0} variants={menuItemVariants}>
-                <Link
-                  href="#"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-black hover:text-black/70 py-2"
-                >
-                  Hlavní stránka
-                </Link>
-              </motion.div>
-              <motion.div custom={1} variants={menuItemVariants}>
-                <Link
-                  href="#"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-black hover:text-black/70 py-2"
-                >
-                  O nás
-                </Link>
-              </motion.div>
-              <motion.div custom={2} variants={menuItemVariants}>
-                <Link
-                  href="#"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-black hover:text-black/70 py-2"
-                >
-                  Portfolio
-                </Link>
-              </motion.div>
-              <motion.div custom={3} variants={menuItemVariants}>
-                <Link
-                  href="#"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-black hover:text-black/70 py-2"
-                >
-                  Služby
-                </Link>
-              </motion.div>
-              <motion.div custom={4} variants={menuItemVariants}>
-                <Link
-                  href="#"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-black hover:text-black/70 py-2"
-                >
-                  Kontakt
-                </Link>
-              </motion.div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isOpen && (
+        <div
+          className={cn(
+            "absolute top-full right-0 mt-2 p-6 bg-white shadow-lg rounded-xl w-60 z-40",
+            "transition-opacity duration-200 ease-in-out",
+            isOpen ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <nav className="grid gap-3">
+            <div className="transition-all duration-200 ease-in-out transform translate-y-0">
+              <Link
+                href="#"
+                onClick={() => setIsOpen(false)}
+                className="block text-black hover:text-black/70 py-2"
+              >
+                Hlavní stránka
+              </Link>
+            </div>
+            <div className="transition-all duration-200 ease-in-out transform translate-y-0">
+              <Link
+                href="#"
+                onClick={() => setIsOpen(false)}
+                className="block text-black hover:text-black/70 py-2"
+              >
+                O nás
+              </Link>
+            </div>
+            <div className="transition-all duration-200 ease-in-out transform translate-y-0">
+              <Link
+                href="#"
+                onClick={() => setIsOpen(false)}
+                className="block text-black hover:text-black/70 py-2"
+              >
+                Portfolio
+              </Link>
+            </div>
+            <div className="transition-all duration-200 ease-in-out transform translate-y-0">
+              <Link
+                href="#"
+                onClick={() => setIsOpen(false)}
+                className="block text-black hover:text-black/70 py-2"
+              >
+                Služby
+              </Link>
+            </div>
+            <div className="transition-all duration-200 ease-in-out transform translate-y-0">
+              <Link
+                href="#"
+                onClick={() => setIsOpen(false)}
+                className="block text-black hover:text-black/70 py-2"
+              >
+                Kontakt
+              </Link>
+            </div>
+          </nav>
+        </div>
+      )}
     </div>
   )
 } 
