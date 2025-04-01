@@ -410,7 +410,7 @@ function Scene() {
   
   // Inicializace modelů pouze jednou při prvním vykreslení
   if (connectorsRef.current.length === 0) {
-    // Hvězdy s neonovým materiálem - pouze jedna
+    // Hvězda s neonovým materiálem
     connectorsRef.current.push({
       id: "neon-star-1",
       color: MATERIALS.NEON.colors[0],
@@ -420,12 +420,12 @@ function Scene() {
       materialType: "NEON" as MaterialType
     })
 
-    // Skleněná hvězda - pouze jedna
+    // GLASS STAR - První skleněná hvězda (modrá)
     connectorsRef.current.push({
-      id: "glass-star-2",
-      color: MATERIALS.GLASS.colors[1],
+      id: "glass-star-1",
+      color: MATERIALS.GLASS.colors[0],
       accent: false,
-      scale: 0.9,
+      scale: 1.2,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS" as MaterialType
     })
@@ -440,6 +440,16 @@ function Scene() {
       materialType: "CHROME" as MaterialType
     })
 
+    // GLASS STAR - Druhá skleněná hvězda (zelená)
+    connectorsRef.current.push({
+      id: "glass-star-2",
+      color: MATERIALS.GLASS.colors[1],
+      accent: false,
+      scale: 1.0,
+      modelType: "GLASS_STAR" as ModelType,
+      materialType: "GLASS" as MaterialType
+    })
+
     // Hvězda s hologramovým materiálem
     connectorsRef.current.push({
       id: "hologram-star-1",
@@ -448,6 +458,16 @@ function Scene() {
       scale: 0.8,
       modelType: "STAR" as ModelType,
       materialType: "HOLOGRAM" as MaterialType
+    })
+
+    // GLASS STAR - Třetí skleněná hvězda (červená)
+    connectorsRef.current.push({
+      id: 'glass-star-3',
+      color: MATERIALS.GLASS.colors[2],
+      accent: false,
+      scale: 1.2,
+      modelType: "GLASS_STAR" as ModelType,
+      materialType: "GLASS" as MaterialType
     })
 
     // Hvězda s mramorovým materiálem
@@ -460,7 +480,17 @@ function Scene() {
       materialType: "MARBLE" as MaterialType
     })
 
-    // Hvězda s STUDIO materiálem
+    // GLASS STAR - Čtvrtá skleněná hvězda (žlutá)
+    connectorsRef.current.push({
+      id: 'glass-star-4',
+      color: MATERIALS.GLASS.colors[3],
+      accent: false,
+      scale: 1.3,
+      modelType: "GLASS_STAR" as ModelType,
+      materialType: "GLASS" as MaterialType
+    })
+
+    // Hvězda se STUDIO materiálem
     connectorsRef.current.push({
       id: 'studio-star-1',
       color: MATERIALS.STUDIO.colors[0],
@@ -470,14 +500,14 @@ function Scene() {
       materialType: "STUDIO" as MaterialType
     })
     
-    // Další hvězda s jiným materiálem
+    // GLASS STAR - Pátá skleněná hvězda s neonovým materiálem
     connectorsRef.current.push({
-      id: 'glass-star-3',
-      color: MATERIALS.GLASS.colors[2],
-      accent: false,
-      scale: 1.2,
+      id: 'glass-star-neon',
+      color: MATERIALS.NEON.colors[1],
+      accent: true,
+      scale: 1.4,
       modelType: "GLASS_STAR" as ModelType,
-      materialType: "GLASS" as MaterialType
+      materialType: "NEON" as MaterialType
     })
   }
 
