@@ -202,10 +202,10 @@ const MATERIALS = {
 const MODELS = {
   STAR: "/models/star.glb",
   GLASS_STAR: "/models/glass_star.glb",
-  CRUCIFIX: "/models/jesus krucifix.glb",
-  ATREYU: "/models/atreyu.glb",
-  DAVID: "/models/david.glb",
-  STUDIO: "/models/studio_vision_glossy.glb"
+  CRUCIFIX: "/models/star.glb",
+  ATREYU: "/models/star.glb",
+  DAVID: "/models/star.glb",
+  STUDIO: "/models/star.glb"
 } as const
 
 // Typy
@@ -244,12 +244,12 @@ function Model({ color, scale, children, modelType, materialType }: ModelProps) 
   // Upravené měřítko pro různé modely
   const modelScale = useMemo(() => {
     switch(modelType) {
-      case "CRUCIFIX": return scale * 0.5
+      case "CRUCIFIX": return scale * 0.9
       case "GLASS_STAR": return scale * 1.2
-      case "ATREYU": return scale * 0.4
-      case "DAVID": return scale * 0.3
-      case "STUDIO": return scale * 0.05
-      default: return scale * 1.5
+      case "ATREYU": return scale * 0.9
+      case "DAVID": return scale * 0.9
+      case "STUDIO": return scale * 0.9
+      default: return scale * 1.0
     }
   }, [modelType, scale])
 
@@ -258,67 +258,57 @@ function Model({ color, scale, children, modelType, materialType }: ModelProps) 
     switch(materialType) {
       case "GLASS":
         return <MeshTransmissionMaterial
-          samples={2} // Sníženo pro výkon
+          samples={1} // Sníženo pro výkon
           thickness={0.2}
           chromaticAberration={0.02}
           transmission={0.95}
           clearcoat={1}
           clearcoatRoughness={0.0}
-          envMapIntensity={3}
+          envMapIntensity={1}
           color={color}
-          distortion={0.1}
-          temporalDistortion={0.1}
+          distortion={0.05}
+          temporalDistortion={0.05}
           metalness={0.2}
           roughness={0.05}
         />
       case "CHROME":
-        return <meshPhysicalMaterial
+        return <meshStandardMaterial
           color={color}
-          metalness={1}
-          roughness={0.05}
-          envMapIntensity={3}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
+          metalness={0.8}
+          roughness={0.1}
+          envMapIntensity={1}
         />
       case "NEON":
         return <meshStandardMaterial
           color={color}
           emissive={color}
-          emissiveIntensity={4}
+          emissiveIntensity={2}
           toneMapped={false}
         />
       case "MARBLE":
-        return <meshPhysicalMaterial
+        return <meshStandardMaterial
           color={color}
           metalness={0}
           roughness={0.2}
           envMapIntensity={1}
-          clearcoat={0.8}
-          clearcoatRoughness={0.2}
         />
       case "HOLOGRAM":
         return <MeshTransmissionMaterial
-          samples={2} // Sníženo pro výkon
-          thickness={0.4}
-          chromaticAberration={0.06}
-          transmission={1}
-          clearcoat={0}
-          envMapIntensity={4}
+          samples={1} // Sníženo pro výkon
+          thickness={0.2}
+          chromaticAberration={0.03}
+          transmission={0.95}
           color={color}
-          distortion={0.4}
-          temporalDistortion={0.3}
-          roughness={0}
-          attenuationDistance={0.2}
-          attenuationColor="#ffffff"
+          distortion={0.2}
+          temporalDistortion={0.1}
+          roughness={0.1}
         />
       case "STUDIO":
-        return <meshPhysicalMaterial
+        return <meshStandardMaterial
           color={color}
-          metalness={0.8}
-          roughness={0.1}
-          envMapIntensity={2}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
+          metalness={0.6}
+          roughness={0.2}
+          envMapIntensity={1}
         />
     }
   }, [color, materialType])
@@ -485,12 +475,13 @@ function Scene() {
   return (
     <Canvas
       shadows
-      dpr={[1, 1.5]}
+      dpr={[0.8, 1.2]}
       gl={{ 
-        antialias: true,
+        antialias: false,
         alpha: true,
-        powerPreference: 'high-performance',
-        preserveDrawingBuffer: true
+        powerPreference: 'default',
+        preserveDrawingBuffer: true,
+        failIfMajorPerformanceCaveat: true
       }}
       camera={{ position: [0, 0, 15], fov: 25, near: 1, far: 40 }}
     >
