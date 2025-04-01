@@ -202,9 +202,9 @@ const MATERIALS = {
 const MODELS = {
   STAR: "/models/star.glb",
   GLASS_STAR: "/models/glass_star.glb",
-  CRUCIFIX: "/models/star.glb",
-  ATREYU: "/models/star.glb",
-  DAVID: "/models/star.glb",
+  CRUCIFIX: "/models/jesus krucifix.glb",
+  ATREYU: "/models/atreyu.glb",
+  DAVID: "/models/david.glb",
   STUDIO: "/models/star.glb"
 } as const
 
@@ -233,6 +233,9 @@ type ConnectorProps = {
 // Preload modelů - pozor na velikost, přednahráváme jen menší modely
 useGLTF.preload("/models/star.glb")
 useGLTF.preload("/models/glass_star.glb")
+useGLTF.preload("/models/jesus krucifix.glb")
+useGLTF.preload("/models/atreyu.glb")
+useGLTF.preload("/models/david.glb")
 // Velké modely načítáme až když jsou potřeba, ne předem
 
 // Model komponenta
@@ -244,12 +247,12 @@ function Model({ color, scale, children, modelType, materialType }: ModelProps) 
   // Upravené měřítko pro různé modely
   const modelScale = useMemo(() => {
     switch(modelType) {
-      case "CRUCIFIX": return scale * 0.9
+      case "CRUCIFIX": return scale * 0.5
       case "GLASS_STAR": return scale * 1.2
-      case "ATREYU": return scale * 0.9
-      case "DAVID": return scale * 0.9
-      case "STUDIO": return scale * 0.9
-      default: return scale * 1.0
+      case "ATREYU": return scale * 0.4
+      case "DAVID": return scale * 0.3
+      case "STUDIO": return scale * 0.05
+      default: return scale * 1.5
     }
   }, [modelType, scale])
 
