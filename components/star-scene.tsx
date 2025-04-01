@@ -306,12 +306,12 @@ function Model({ color, scale, children, modelType, materialType }: ModelProps) 
   // Upravené měřítko pro různé modely
   const modelScale = useMemo(() => {
     switch(modelType) {
-      case "CRUCIFIX": return scale * 0.5
-      case "GLASS_STAR": return scale * 1.2
-      case "ATREYU": return scale * 0.4
-      case "DAVID": return scale * 0.3
+      case "CRUCIFIX": return scale * 0.25
+      case "GLASS_STAR": return scale * 0.8
+      case "ATREYU": return scale * 0.2
+      case "DAVID": return scale * 0.15
       case "STUDIO": return scale * 0.05
-      default: return scale * 1.5
+      default: return scale * 0.8
     }
   }, [modelType, scale])
 
@@ -570,7 +570,7 @@ function Scene() {
       id: "glass-star-blue-1",
       color: MATERIALS.GLASS_BLUE.colors[0],
       accent: true,
-      scale: 1.1,
+      scale: 0.7,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS_BLUE" as MaterialType
     })
@@ -579,7 +579,7 @@ function Scene() {
       id: "glass-star-blue-2",
       color: MATERIALS.GLASS_BLUE.colors[1],
       accent: false,
-      scale: 0.9,
+      scale: 0.6,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS_BLUE" as MaterialType
     })
@@ -589,7 +589,7 @@ function Scene() {
       id: "neon-star-1",
       color: MATERIALS.NEON.colors[0],
       accent: true,
-      scale: 0.8,
+      scale: 0.5,
       modelType: "STAR" as ModelType,
       materialType: "NEON" as MaterialType
     })
@@ -599,7 +599,7 @@ function Scene() {
       id: "david-marble-1",
       color: MATERIALS.MARBLE.colors[0],
       accent: false,
-      scale: 1.0,
+      scale: 0.6,
       modelType: "DAVID" as ModelType,
       materialType: "MARBLE" as MaterialType
     })
@@ -609,7 +609,7 @@ function Scene() {
       id: "glass-star-1",
       color: MATERIALS.GLASS.colors[0],
       accent: false,
-      scale: 1.2,
+      scale: 0.7,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS" as MaterialType
     })
@@ -619,7 +619,7 @@ function Scene() {
       id: "jesus-chrome-1",
       color: MATERIALS.CHROME.colors[0],
       accent: true,
-      scale: 0.8,
+      scale: 0.4,
       modelType: "CRUCIFIX" as ModelType,
       materialType: "CHROME" as MaterialType
     })
@@ -629,7 +629,7 @@ function Scene() {
       id: "glass-star-2",
       color: MATERIALS.GLASS.colors[1],
       accent: false,
-      scale: 1.0,
+      scale: 0.65,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS" as MaterialType
     })
@@ -639,7 +639,7 @@ function Scene() {
       id: "atreyu-hologram-1",
       color: MATERIALS.HOLOGRAM.colors[0],
       accent: true,
-      scale: 0.8,
+      scale: 0.4,
       modelType: "ATREYU" as ModelType,
       materialType: "HOLOGRAM" as MaterialType
     })
@@ -649,7 +649,7 @@ function Scene() {
       id: 'glass-star-3',
       color: MATERIALS.GLASS.colors[2],
       accent: false,
-      scale: 1.1,
+      scale: 0.7,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS" as MaterialType
     })
@@ -659,7 +659,7 @@ function Scene() {
       id: 'jesus-hologram-1',
       color: MATERIALS.HOLOGRAM.colors[1],
       accent: true,
-      scale: 0.7,
+      scale: 0.35,
       modelType: "CRUCIFIX" as ModelType,
       materialType: "HOLOGRAM" as MaterialType
     })
@@ -669,7 +669,7 @@ function Scene() {
       id: 'glass-star-4',
       color: MATERIALS.GLASS.colors[3],
       accent: false,
-      scale: 1.3,
+      scale: 0.75,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS" as MaterialType
     })
@@ -679,7 +679,7 @@ function Scene() {
       id: 'david-glass-1',
       color: MATERIALS.GLASS_BLUE.colors[2],
       accent: true,
-      scale: 0.9,
+      scale: 0.5,
       modelType: "DAVID" as ModelType,
       materialType: "GLASS_BLUE" as MaterialType
     })
@@ -689,7 +689,7 @@ function Scene() {
       id: 'glass-star-neon',
       color: MATERIALS.NEON.colors[1],
       accent: true,
-      scale: 1.2,
+      scale: 0.7,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "NEON" as MaterialType
     })
