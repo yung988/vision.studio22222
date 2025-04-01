@@ -7,8 +7,8 @@ import { Physics, RigidBody, BallCollider, CuboidCollider } from "@react-three/r
 import type { RapierRigidBody } from '@react-three/rapier'
 import { 
   useGLTF, 
-  Environment,
-  MeshTransmissionMaterial,
+  Environment, 
+  MeshTransmissionMaterial, 
   AccumulativeShadows,
   RandomizedLight,
   Sparkles,
@@ -428,7 +428,7 @@ function Connector({ position, children, color, scale, accent = false, modelType
     ] as [number, number, number]
   }, [position, randFloatSpread])
   
-  useFrame(({ clock, delta }) => {
+  useFrame(({ clock }) => {
     if (api.current) {
       const currentPosition = api.current.translation()
       
@@ -447,11 +447,18 @@ function Connector({ position, children, color, scale, accent = false, modelType
       // Omezení maximální rychlosti
       const velocity = api.current.linvel()
       const maxSpeed = 2.0
-      const speedSq = velocity.lengthSq()
+      const speedSq = new THREE.Vector3(velocity.x, velocity.y, velocity.z).lengthSq()
       
       if (speedSq > maxSpeed * maxSpeed) {
         const slowDown = maxSpeed / Math.sqrt(speedSq)
-        api.current.setLinvel(velocity.multiplyScalar(slowDown))
+        api.current.setLinvel(
+          { 
+            x: velocity.x * slowDown, 
+            y: velocity.y * slowDown, 
+            z: velocity.z * slowDown 
+          }, 
+          true
+        )
       }
     }
   })
@@ -653,17 +660,17 @@ function Scene() {
       materialType: "NEON" as MaterialType
     })
   }
-
+  
   return (
-    <Canvas
-      shadows
+    <Canvas 
+      shadows 
       dpr={[1, 1.5]} // Vyšší kvalita
       gl={{ 
         antialias: true, // Zapnuto pro kvalitnější vykreslování
         alpha: true,
         powerPreference: 'high-performance',
         preserveDrawingBuffer: true,
-        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMapping: THREE.ACESFilmicToneMapping, 
         toneMappingExposure: 1.2
       }}
     >
