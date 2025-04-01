@@ -1,8 +1,8 @@
 "use client"
 
 import * as THREE from "three"
-import { useRef, useMemo, Suspense } from "react"
-import { Canvas, useFrame, extend } from "@react-three/fiber"
+import { useRef, useMemo, Suspense, useState, useEffect } from "react"
+import { Canvas, useFrame, extend, useLoader } from "@react-three/fiber"
 import { Physics, RigidBody, BallCollider, CuboidCollider } from "@react-three/rapier"
 import type { RapierRigidBody } from '@react-three/rapier'
 import { 
@@ -12,7 +12,10 @@ import {
   AccumulativeShadows,
   RandomizedLight,
   Sparkles,
-  shaderMaterial
+  shaderMaterial,
+  Html,
+  useProgress,
+  PerspectiveCamera
 } from "@react-three/drei"
 
 // Ray Marching Shader pro pozadí
@@ -141,6 +144,44 @@ const RayMarchingMaterial = shaderMaterial(
 
 extend({ RayMarchingMaterial })
 
+// Komponenta pro loading screen
+function LoadingScreen() {
+  const { progress } = useProgress()
+  
+  return (
+    <Html center>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#000',
+        padding: '20px',
+        borderRadius: '10px',
+        color: 'white',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        <div style={{ marginBottom: '10px' }}>Načítání modelů...</div>
+        <div style={{ 
+          width: '200px', 
+          height: '6px', 
+          background: '#333', 
+          borderRadius: '3px',
+          overflow: 'hidden'
+        }}>
+          <div style={{ 
+            width: `${progress}%`, 
+            height: '100%', 
+            background: 'white', 
+            borderRadius: '3px'
+          }} />
+        </div>
+        <div style={{ marginTop: '5px' }}>{progress.toFixed(0)}%</div>
+      </div>
+    </Html>
+  )
+}
+
 // Ray Marching komponenta v pozadí
 function RayMarchingBackground() {
   const meshRef = useRef<THREE.Mesh>(null)
@@ -176,6 +217,10 @@ const MATERIALS = {
     type: "transmission",
     colors: ['#4060ff', '#20ffa0', '#ff4060', '#ffcc00']
   },
+  GLASS_BLUE: {
+    type: "transmission",
+    colors: ['#0033ff', '#0055ff', '#0077ff', '#0099ff']
+  },
   CHROME: {
     type: "chrome",
     colors: ['#ffffff', '#cccccc', '#888888', '#444444']
@@ -202,9 +247,9 @@ const MATERIALS = {
 const MODELS = {
   STAR: "/models/star.glb",
   GLASS_STAR: "/models/glass_star.glb",
-  CRUCIFIX: "/models/star.glb",
-  ATREYU: "/models/star.glb",
-  DAVID: "/models/star.glb",
+  CRUCIFIX: "/models/jesus.glb", // Vráceno na původní soubor
+  ATREYU: "/models/atreyu.glb", // Vráceno na původní soubor
+  DAVID: "/models/david.glb", // Vráceno na původní soubor
   STUDIO: "/models/star.glb"
 } as const
 
@@ -233,12 +278,30 @@ type ConnectorProps = {
 // Preload modelů
 useGLTF.preload("/models/star.glb")
 useGLTF.preload("/models/glass_star.glb")
+// Přidáváme preload dostupných modelů
+try {
+  useGLTF.preload("/models/jesus.glb")
+  useGLTF.preload("/models/atreyu.glb")
+  useGLTF.preload("/models/david.glb")
+} catch (error) {
+  console.warn("Některé modely se nepodařilo načíst", error)
+}
 
 // Model komponenta
 function Model({ color, scale, children, modelType, materialType }: ModelProps) {
   const ref = useRef<THREE.Mesh>(null)
-  const { scene } = useGLTF(MODELS[modelType])
-  const model = useMemo(() => scene.clone(), [scene])
+  const [model, setModel] = useState<THREE.Object3D | null>(null)
+  
+  useEffect(() => {
+    try {
+      const { scene } = useGLTF(MODELS[modelType])
+      setModel(scene.clone())
+    } catch (error) {
+      console.warn(`Model ${modelType} se nepodařilo načíst, používám záložní`, error)
+      const { scene } = useGLTF(MODELS["STAR"])
+      setModel(scene.clone())
+    }
+  }, [modelType])
   
   // Upravené měřítko pro různé modely
   const modelScale = useMemo(() => {
@@ -257,60 +320,89 @@ function Model({ color, scale, children, modelType, materialType }: ModelProps) 
     switch(materialType) {
       case "GLASS":
         return <MeshTransmissionMaterial
-          samples={1} // Sníženo pro výkon
-          thickness={0.2}
-          chromaticAberration={0.02}
+          samples={2}
+          thickness={0.3}
+          chromaticAberration={0.05}
           transmission={0.95}
           clearcoat={1}
-          clearcoatRoughness={0.0}
-          envMapIntensity={1}
+          clearcoatRoughness={0.1}
+          envMapIntensity={3}
           color={color}
-          distortion={0.05}
-          temporalDistortion={0.05}
-          metalness={0.2}
+          distortion={0.2}
+          temporalDistortion={0.2}
+          metalness={0.1}
           roughness={0.05}
+          anisotropy={1}
+          anisotropicBlur={0.5}
+          ior={1.5}
+        />
+      case "GLASS_BLUE":
+        return <MeshTransmissionMaterial
+          samples={3}
+          thickness={0.3}
+          chromaticAberration={0.03}
+          transmission={0.95}
+          clearcoat={1}
+          clearcoatRoughness={0.1}
+          envMapIntensity={5}
+          color={color}
+          distortion={0.1}
+          temporalDistortion={0.1}
+          metalness={0.05}
+          roughness={0.05}
+          anisotropy={1}
+          anisotropicBlur={0.1}
+          ior={1.4}
         />
       case "CHROME":
         return <meshStandardMaterial
           color={color}
-          metalness={0.8}
-          roughness={0.1}
-          envMapIntensity={1}
+          metalness={1}
+          roughness={0.05}
+          envMapIntensity={3}
         />
       case "NEON":
         return <meshStandardMaterial
           color={color}
           emissive={color}
-          emissiveIntensity={2}
+          emissiveIntensity={3}
           toneMapped={false}
         />
       case "MARBLE":
         return <meshStandardMaterial
           color={color}
-          metalness={0}
+          metalness={0.05}
           roughness={0.2}
           envMapIntensity={1}
         />
       case "HOLOGRAM":
         return <MeshTransmissionMaterial
-          samples={1} // Sníženo pro výkon
-          thickness={0.2}
-          chromaticAberration={0.03}
-          transmission={0.95}
+          samples={2}
+          thickness={0.1}
+          chromaticAberration={0.05}
+          transmission={0.98}
           color={color}
-          distortion={0.2}
-          temporalDistortion={0.1}
-          roughness={0.1}
+          distortion={0.3}
+          temporalDistortion={0.2}
+          roughness={0.05}
+          attenuationDistance={0.4}
+          attenuationColor="#ffffff"
+          emissive={color}
+          emissiveIntensity={0.5}
         />
       case "STUDIO":
         return <meshStandardMaterial
           color={color}
-          metalness={0.6}
-          roughness={0.2}
-          envMapIntensity={1}
+          metalness={0.7}
+          roughness={0.1}
+          envMapIntensity={2}
         />
+      default:
+        return null
     }
   }, [color, materialType])
+
+  if (!model) return null
 
   return (
     <group scale={[modelScale, modelScale, modelScale]}>
@@ -330,27 +422,49 @@ function Connector({ position, children, color, scale, accent = false, modelType
   const pos = useMemo(() => {
     if (position) return position
     return [
-      randFloatSpread(10),
-      randFloatSpread(10),
-      randFloatSpread(10)
+      randFloatSpread(5), // Menší rozptyl pro užší seskupení
+      randFloatSpread(5),
+      randFloatSpread(5)
     ] as [number, number, number]
   }, [position, randFloatSpread])
   
-  useFrame((state, delta) => {
+  useFrame(({ clock, delta }) => {
     if (api.current) {
       const currentPosition = api.current.translation()
+      
+      // Menší přitažlivost ke středu
+      const attractionMultiplier = 0.05
+      
+      // Pomalejší pohyb
       api.current.applyImpulse(
         new THREE.Vector3()
           .copy(currentPosition)
           .negate()
-          .multiplyScalar(0.2),
+          .multiplyScalar(attractionMultiplier),
         true
       )
+      
+      // Omezení maximální rychlosti
+      const velocity = api.current.linvel()
+      const maxSpeed = 2.0
+      const speedSq = velocity.lengthSq()
+      
+      if (speedSq > maxSpeed * maxSpeed) {
+        const slowDown = maxSpeed / Math.sqrt(speedSq)
+        api.current.setLinvel(velocity.multiplyScalar(slowDown))
+      }
     }
   })
   
   return (
-    <RigidBody linearDamping={4} angularDamping={1} friction={0.1} position={pos} ref={api} colliders={false}>
+    <RigidBody 
+      linearDamping={4} 
+      angularDamping={2} 
+      friction={0.2} 
+      position={pos} 
+      ref={api} 
+      colliders={false}
+    >
       <CuboidCollider args={[0.38, 1.27, 0.38]} />
       <CuboidCollider args={[1.27, 0.38, 0.38]} />
       <CuboidCollider args={[0.38, 0.38, 1.27]} />
@@ -362,8 +476,8 @@ function Connector({ position, children, color, scale, accent = false, modelType
       >
         {children}
       </Model>
-      {accent && materialType === "NEON" && (
-        <pointLight intensity={4} distance={3} color={color} />
+      {accent && (
+        <pointLight intensity={3} distance={4} color={color} castShadow />
       )}
     </RigidBody>
   )
@@ -388,7 +502,7 @@ function Pointer() {
   
   return (
     <RigidBody position={[0, 0, 0]} type="kinematicPosition" colliders={false} ref={ref}>
-      <BallCollider args={[1]} />
+      <BallCollider args={[2]} /> {/* Větší kolizní těleso pro lepší interakci */}
     </RigidBody>
   )
 }
@@ -410,17 +524,46 @@ function Scene() {
   
   // Inicializace modelů pouze jednou při prvním vykreslení
   if (connectorsRef.current.length === 0) {
-    // Hvězda s neonovým materiálem
+    // SKLENĚNÉ HVĚZDY - MODRÁ SÉRIE
+    connectorsRef.current.push({
+      id: "glass-star-blue-1",
+      color: MATERIALS.GLASS_BLUE.colors[0],
+      accent: true,
+      scale: 1.1,
+      modelType: "GLASS_STAR" as ModelType,
+      materialType: "GLASS_BLUE" as MaterialType
+    })
+    
+    connectorsRef.current.push({
+      id: "glass-star-blue-2",
+      color: MATERIALS.GLASS_BLUE.colors[1],
+      accent: false,
+      scale: 0.9,
+      modelType: "GLASS_STAR" as ModelType,
+      materialType: "GLASS_BLUE" as MaterialType
+    })
+    
+    // NORMÁLNÍ HVĚZDY - RŮZNÉ MATERIÁLY
     connectorsRef.current.push({
       id: "neon-star-1",
       color: MATERIALS.NEON.colors[0],
       accent: true,
-      scale: 0.9,
+      scale: 0.8,
       modelType: "STAR" as ModelType,
       materialType: "NEON" as MaterialType
     })
 
-    // GLASS STAR - První skleněná hvězda (modrá)
+    // DAVID - MRAMOROVÝ
+    connectorsRef.current.push({
+      id: "david-marble-1",
+      color: MATERIALS.MARBLE.colors[0],
+      accent: false,
+      scale: 1.0,
+      modelType: "DAVID" as ModelType,
+      materialType: "MARBLE" as MaterialType
+    })
+
+    // SKLENĚNÁ HVĚZDA - KLASICKÁ
     connectorsRef.current.push({
       id: "glass-star-1",
       color: MATERIALS.GLASS.colors[0],
@@ -430,17 +573,17 @@ function Scene() {
       materialType: "GLASS" as MaterialType
     })
 
-    // Hvězda s chromovým materiálem
+    // JEŽÍŠ - CHROMOVÝ
     connectorsRef.current.push({
-      id: "chrome-star-1",
+      id: "jesus-chrome-1",
       color: MATERIALS.CHROME.colors[0],
-      accent: false,
+      accent: true,
       scale: 0.8,
-      modelType: "STAR" as ModelType,
+      modelType: "CRUCIFIX" as ModelType,
       materialType: "CHROME" as MaterialType
     })
 
-    // GLASS STAR - Druhá skleněná hvězda (zelená)
+    // SKLENĚNÁ HVĚZDA - ZELENÁ
     connectorsRef.current.push({
       id: "glass-star-2",
       color: MATERIALS.GLASS.colors[1],
@@ -450,37 +593,37 @@ function Scene() {
       materialType: "GLASS" as MaterialType
     })
 
-    // Hvězda s hologramovým materiálem
+    // ATREYU - HOLOGRAMOVÝ
     connectorsRef.current.push({
-      id: "hologram-star-1",
+      id: "atreyu-hologram-1",
       color: MATERIALS.HOLOGRAM.colors[0],
       accent: true,
       scale: 0.8,
-      modelType: "STAR" as ModelType,
+      modelType: "ATREYU" as ModelType,
       materialType: "HOLOGRAM" as MaterialType
     })
 
-    // GLASS STAR - Třetí skleněná hvězda (červená)
+    // SKLENĚNÁ HVĚZDA - ČERVENÁ
     connectorsRef.current.push({
       id: 'glass-star-3',
       color: MATERIALS.GLASS.colors[2],
       accent: false,
-      scale: 1.2,
+      scale: 1.1,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "GLASS" as MaterialType
     })
 
-    // Hvězda s mramorovým materiálem
+    // JEŽÍŠ - HOLOGRAM
     connectorsRef.current.push({
-      id: 'marble-star-1',
-      color: MATERIALS.MARBLE.colors[0],
-      accent: false,
-      scale: 1,
-      modelType: "STAR" as ModelType,
-      materialType: "MARBLE" as MaterialType
+      id: 'jesus-hologram-1',
+      color: MATERIALS.HOLOGRAM.colors[1],
+      accent: true,
+      scale: 0.7,
+      modelType: "CRUCIFIX" as ModelType,
+      materialType: "HOLOGRAM" as MaterialType
     })
 
-    // GLASS STAR - Čtvrtá skleněná hvězda (žlutá)
+    // SKLENĚNÁ HVĚZDA - ŽLUTÁ
     connectorsRef.current.push({
       id: 'glass-star-4',
       color: MATERIALS.GLASS.colors[3],
@@ -490,22 +633,22 @@ function Scene() {
       materialType: "GLASS" as MaterialType
     })
 
-    // Hvězda se STUDIO materiálem
+    // DAVID - SKLENĚNÝ
     connectorsRef.current.push({
-      id: 'studio-star-1',
-      color: MATERIALS.STUDIO.colors[0],
+      id: 'david-glass-1',
+      color: MATERIALS.GLASS_BLUE.colors[2],
       accent: true,
-      scale: 1.5,
-      modelType: "STAR" as ModelType,
-      materialType: "STUDIO" as MaterialType
+      scale: 0.9,
+      modelType: "DAVID" as ModelType,
+      materialType: "GLASS_BLUE" as MaterialType
     })
     
-    // GLASS STAR - Pátá skleněná hvězda s neonovým materiálem
+    // NEONOVÁ SKLENĚNÁ HVĚZDA
     connectorsRef.current.push({
       id: 'glass-star-neon',
       color: MATERIALS.NEON.colors[1],
       accent: true,
-      scale: 1.4,
+      scale: 1.2,
       modelType: "GLASS_STAR" as ModelType,
       materialType: "NEON" as MaterialType
     })
@@ -514,55 +657,78 @@ function Scene() {
   return (
     <Canvas
       shadows
-      dpr={[0.8, 1.2]}
+      dpr={[1, 1.5]} // Vyšší kvalita
       gl={{ 
-        antialias: false,
+        antialias: true, // Zapnuto pro kvalitnější vykreslování
         alpha: true,
-        powerPreference: 'default',
+        powerPreference: 'high-performance',
         preserveDrawingBuffer: true,
-        failIfMajorPerformanceCaveat: true
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.2
       }}
-      camera={{ position: [0, 0, 15], fov: 25, near: 1, far: 40 }}
     >
-      <color attach="background" args={['#050510']} />
+      <PerspectiveCamera
+        makeDefault
+        position={[0, 0, 15]}
+        fov={25}
+        near={0.1}
+        far={100}
+      />
       
-      {/* Ray Marching efekt v pozadí */}
-      <RayMarchingBackground />
-
+      <color attach="background" args={['#020210']} />
+      
       {/* Dramatické osvětlení */}
-      <ambientLight intensity={0.3} />
+      <ambientLight intensity={0.2} />
       
-      {/* Modré světlo */}
+      {/* Hlavní modré světlo */}
       <spotLight
-        position={[-10, 5, 5]}
-        angle={0.3}
+        position={[-10, 5, 10]}
+        angle={0.4}
         penumbra={1}
-        intensity={3}
-        color="#0055ff"
+        intensity={5}
+        color="#1155ff"
         castShadow
+        shadow-mapSize={[1024, 1024]}
+        shadow-bias={-0.0001}
       />
       
-      {/* Růžové světlo */}
-      <spotLight
-        position={[10, -5, -5]}
-        angle={0.3}
-        penumbra={1}
-        intensity={2}
-        color="#ff0066"
-        castShadow={false}
-      />
-      
-      {/* Dešťové částice */}
-      <Sparkles 
-        count={100} // Sníženo pro lepší výkon
-        scale={20}
-        size={1.5}
-        speed={0.3}
-        opacity={0.2}
+      {/* Doplňkové světlo */}
+      <pointLight
+        position={[8, -5, 8]}
+        intensity={3}
         color="#ffffff"
       />
       
-      <Suspense fallback={null}>
+      {/* Protisvětlo */}
+      <spotLight
+        position={[8, 2, -10]}
+        angle={0.5}
+        penumbra={1}
+        intensity={2}
+        color="#ffffff"
+        castShadow={false}
+      />
+      
+      {/* Odleskové světlo */}
+      <pointLight
+        position={[-5, -2, 8]}
+        intensity={2}
+        color="#80b0ff"
+      />
+      
+      {/* Částicové efekty */}
+      <Sparkles 
+        count={80}
+        scale={15}
+        size={1}
+        speed={0.2}
+        opacity={0.3}
+        color="#80b0ff"
+      />
+      
+      <Suspense fallback={<LoadingScreen />}>
+        <RayMarchingBackground />
+        
         <Physics gravity={[0, 0, 0]}>
           <Pointer />
           {connectorsRef.current.map((props) => (
@@ -570,26 +736,26 @@ function Scene() {
           ))}
         </Physics>
         
-        <Environment preset="night" />
+        <Environment preset="warehouse" background={false} blur={0.5} />
         
         {/* Stíny */}
         <AccumulativeShadows
           temporal
           frames={30}
-          color="#000000"
+          color="#000030"
           colorBlend={0.7}
           toneMapped={true}
-          alphaTest={0.7}
-          opacity={0.7}
+          alphaTest={0.75}
+          opacity={0.8}
           scale={14}
           position={[0, -5, 0]}
         >
           <RandomizedLight
             amount={4}
-            radius={5}
-            ambient={0.7}
-            intensity={1.5}
-            position={[5, 5, -10]}
+            radius={10}
+            ambient={0.5}
+            intensity={2}
+            position={[5, 8, -10]}
             bias={0.001}
           />
         </AccumulativeShadows>
