@@ -202,9 +202,9 @@ const MATERIALS = {
 const MODELS = {
   STAR: "/models/star.glb",
   GLASS_STAR: "/models/glass_star.glb",
-  CRUCIFIX: "/models/jesus krucifix.glb",
-  ATREYU: "/models/atreyu.glb",
-  DAVID: "/models/david.glb",
+  CRUCIFIX: "/models/star.glb",
+  ATREYU: "/models/star.glb",
+  DAVID: "/models/star.glb",
   STUDIO: "/models/star.glb"
 } as const
 
@@ -230,13 +230,9 @@ type ConnectorProps = {
   materialType: MaterialType;
 }
 
-// Preload modelů - pozor na velikost, přednahráváme jen menší modely
+// Preload modelů
 useGLTF.preload("/models/star.glb")
 useGLTF.preload("/models/glass_star.glb")
-useGLTF.preload("/models/jesus krucifix.glb")
-useGLTF.preload("/models/atreyu.glb")
-useGLTF.preload("/models/david.glb")
-// Velké modely načítáme až když jsou potřeba, ne předem
 
 // Model komponenta
 function Model({ color, scale, children, modelType, materialType }: ModelProps) {
