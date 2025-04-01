@@ -17,18 +17,38 @@ const nextConfig = {
     unoptimized: true,
   },
   transpilePackages: ['three'],
-  experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
-  },
   webpack: (config) => {
+    config.externals.push({
+      three: 'THREE',
+      'three-stdlib': 'threeStdlib',
+      'three-mesh-bvh': 'threeMeshBVH',
+      'three-spritetext': 'threeSpriteText'
+    });
+    
+    // Zvýšení limitů pro velké soubory
     config.performance = {
       ...config.performance,
-      maxAssetSize: 8 * 1024 * 1024, // 8 MB
-      maxEntrypointSize: 8 * 1024 * 1024, // 8 MB
+      maxAssetSize: 8 * 1024 * 1024, // 8MB
+      maxEntrypointSize: 8 * 1024 * 1024 // 8MB
     };
+    
     return config;
+  },
+  experimental: {
+    optimizePackageImports: ['@react-three/fiber', '@react-three/drei', '@react-three/rapier'],
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; worker-src 'self' blob:;"
+          }
+        ]
+      }
+    ];
   },
   onDemandEntries: {
     maxInactiveAge: 60 * 60 * 1000, // 1 hodina

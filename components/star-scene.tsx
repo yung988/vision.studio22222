@@ -247,10 +247,10 @@ const MATERIALS = {
 const MODELS = {
   STAR: "/models/star.glb",
   GLASS_STAR: "/models/glass_star.glb",
-  CRUCIFIX: "/models/jesus.glb", // Vráceno na původní soubor
-  ATREYU: "/models/atreyu.glb", // Vráceno na původní soubor
-  DAVID: "/models/david.glb", // Vráceno na původní soubor
-  STUDIO: "/models/star.glb"
+  CRUCIFIX: "/models/jesus.glb", // Používáme pouze dostupný model
+  ATREYU: "/models/star.glb",    // Fallback na star model
+  DAVID: "/models/star.glb",     // Fallback na star model
+  STUDIO: "/models/star.glb"     // Fallback na star model
 } as const
 
 // Typy
@@ -275,17 +275,10 @@ type ConnectorProps = {
   materialType: MaterialType;
 }
 
-// Preload modelů
+// Preload modelů - pouze dostupné modely
 useGLTF.preload("/models/star.glb")
 useGLTF.preload("/models/glass_star.glb")
-// Přidáváme preload dostupných modelů
-try {
-  useGLTF.preload("/models/jesus.glb")
-  useGLTF.preload("/models/atreyu.glb")
-  useGLTF.preload("/models/david.glb")
-} catch (error) {
-  console.warn("Některé modely se nepodařilo načíst", error)
-}
+useGLTF.preload("/models/jesus.glb")
 
 // Model komponenta
 function Model({ color, scale, children, modelType, materialType }: ModelProps) {
@@ -306,7 +299,7 @@ function Model({ color, scale, children, modelType, materialType }: ModelProps) 
   // Upravené měřítko pro různé modely
   const modelScale = useMemo(() => {
     switch(modelType) {
-      case "CRUCIFIX": return scale * 0.25
+      case "CRUCIFIX": return scale * 0.15
       case "GLASS_STAR": return scale * 0.8
       case "ATREYU": return scale * 0.2
       case "DAVID": return scale * 0.15
@@ -321,81 +314,75 @@ function Model({ color, scale, children, modelType, materialType }: ModelProps) 
       case "GLASS":
         return <MeshTransmissionMaterial
           samples={2}
-          thickness={0.3}
-          chromaticAberration={0.05}
-          transmission={0.95}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
-          envMapIntensity={3}
-          color={color}
-          distortion={0.2}
-          temporalDistortion={0.2}
-          metalness={0.1}
-          roughness={0.05}
-          anisotropy={1}
-          anisotropicBlur={0.5}
-          ior={1.5}
-        />
-      case "GLASS_BLUE":
-        return <MeshTransmissionMaterial
-          samples={3}
-          thickness={0.3}
+          thickness={0.25}
           chromaticAberration={0.03}
-          transmission={0.95}
-          clearcoat={1}
+          transmission={0.97}
+          clearcoat={0.9}
           clearcoatRoughness={0.1}
-          envMapIntensity={5}
+          envMapIntensity={2}
           color={color}
           distortion={0.1}
           temporalDistortion={0.1}
           metalness={0.05}
-          roughness={0.05}
-          anisotropy={1}
-          anisotropicBlur={0.1}
+          roughness={0.02}
+          ior={1.5}
+        />
+      case "GLASS_BLUE":
+        return <MeshTransmissionMaterial
+          samples={2}
+          thickness={0.2}
+          chromaticAberration={0.02}
+          transmission={0.95}
+          clearcoat={0.9}
+          clearcoatRoughness={0.1}
+          envMapIntensity={3}
+          color={color}
+          distortion={0.05}
+          temporalDistortion={0.05}
+          metalness={0.03}
+          roughness={0.03}
           ior={1.4}
         />
       case "CHROME":
         return <meshStandardMaterial
           color={color}
-          metalness={1}
-          roughness={0.05}
-          envMapIntensity={3}
+          metalness={0.9}
+          roughness={0.15}
+          envMapIntensity={2}
         />
       case "NEON":
         return <meshStandardMaterial
           color={color}
           emissive={color}
-          emissiveIntensity={3}
+          emissiveIntensity={2}
           toneMapped={false}
         />
       case "MARBLE":
         return <meshStandardMaterial
           color={color}
-          metalness={0.05}
-          roughness={0.2}
-          envMapIntensity={1}
+          metalness={0.03}
+          roughness={0.3}
+          envMapIntensity={0.8}
         />
       case "HOLOGRAM":
         return <MeshTransmissionMaterial
-          samples={2}
+          samples={1}
           thickness={0.1}
-          chromaticAberration={0.05}
+          chromaticAberration={0.03}
           transmission={0.98}
           color={color}
-          distortion={0.3}
-          temporalDistortion={0.2}
-          roughness={0.05}
-          attenuationDistance={0.4}
-          attenuationColor="#ffffff"
+          distortion={0.2}
+          temporalDistortion={0.1}
+          roughness={0.1}
           emissive={color}
-          emissiveIntensity={0.5}
+          emissiveIntensity={0.3}
         />
       case "STUDIO":
         return <meshStandardMaterial
           color={color}
-          metalness={0.7}
-          roughness={0.1}
-          envMapIntensity={2}
+          metalness={0.6}
+          roughness={0.2}
+          envMapIntensity={1.5}
         />
       default:
         return null
@@ -619,7 +606,7 @@ function Scene() {
       id: "jesus-chrome-1",
       color: MATERIALS.CHROME.colors[0],
       accent: true,
-      scale: 0.4,
+      scale: 0.3,
       modelType: "CRUCIFIX" as ModelType,
       materialType: "CHROME" as MaterialType
     })
@@ -659,7 +646,7 @@ function Scene() {
       id: 'jesus-hologram-1',
       color: MATERIALS.HOLOGRAM.colors[1],
       accent: true,
-      scale: 0.35,
+      scale: 0.25,
       modelType: "CRUCIFIX" as ModelType,
       materialType: "HOLOGRAM" as MaterialType
     })
@@ -698,14 +685,14 @@ function Scene() {
   return (
     <Canvas 
       shadows 
-      dpr={[1, 1.5]} // Vyšší kvalita
+      dpr={[0.8, 1.2]}
       gl={{ 
-        antialias: true, // Zapnuto pro kvalitnější vykreslování
+        antialias: true,
         alpha: true,
-        powerPreference: 'high-performance',
+        powerPreference: 'default',
         preserveDrawingBuffer: true,
         toneMapping: THREE.ACESFilmicToneMapping, 
-        toneMappingExposure: 1.2
+        toneMappingExposure: 1.0
       }}
     >
       <PerspectiveCamera
@@ -759,7 +746,7 @@ function Scene() {
       
       {/* Částicové efekty */}
       <Sparkles 
-        count={80}
+        count={40}
         scale={15}
         size={1}
         speed={0.2}
